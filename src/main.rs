@@ -1,25 +1,21 @@
-use std::collections::BTreeMap;
+use std::collections::VecDeque;
 use std::env;
 
 use tatr::*;
 
 fn main() {
-    let mut args: BTreeMap<String, String> = parse_args(env::args());
+    let mut args: VecDeque<Arg> = parse_args(env::args());
     if args.is_empty() {
         usage();
         return;
     }
 
-    if let Some((key, _)) = args.pop_first() {
-        if key == "init" {
-            init();
-        } else if key == "help" {
-            usage();
-        } else if key == "version" {
-            version();
-        } else {
-            usage();
-        }
-    }
-
+    let first = args.pop_front().unwrap();
+    match first.Key.as_str() {
+        "init" => init(),
+        "help" => usage(),
+        "version" => version(),
+        "new" => new_cmd(&mut args),
+        _ => usage()
+    };
 }
