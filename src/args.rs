@@ -1,6 +1,7 @@
 use std::env;
 use std::collections::VecDeque;
 
+#[derive(Debug)]
 pub struct Arg {
     pub Key: String,
     pub Value: Option<String>
@@ -13,6 +14,7 @@ pub fn parse_args(args: env::Args) -> VecDeque<Arg> {
     for elem in arg_list {
         let first_char = elem.chars().nth(0).unwrap();
         if first_char == '-' {
+            key = Some(elem);
             continue;
         }
 
@@ -24,6 +26,7 @@ pub fn parse_args(args: env::Args) -> VecDeque<Arg> {
         }
     }
 
+    println!("[INFO] Found: {:?}", parsed);
     return parsed;
 }
 

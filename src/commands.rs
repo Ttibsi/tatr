@@ -38,7 +38,7 @@ pub fn new_cmd(args: &mut VecDeque<Arg>) {
         return;
     }
 
-    let huid = generate_huid(get_value(args, "-s"));
+    let huid = generate_huid(get_value(args, "-s").as_deref());
     let pwd = env::current_dir().expect("Cound not get CWD");
     let tasks_dir = find_tasks_dir(&pwd).unwrap();
     let path = format!("{}/{}", tasks_dir, huid);

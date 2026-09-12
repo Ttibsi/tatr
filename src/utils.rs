@@ -1,7 +1,23 @@
 use std::path::Path;
+use time::OffsetDateTime;
 
-pub fn generate_huid(suffix: Option<String>) -> String {
-    unreachable!("TODO: generate_huid");
+pub fn generate_huid(suffix: Option<&str>) -> String {
+    let now = OffsetDateTime::now_utc();
+
+    let base = format!(
+        "{:04}{:02}{:02}-{:02}{:02}{:02}",
+        now.year(),
+        now.month() as u8,
+        now.day(),
+        now.hour(),
+        now.minute(),
+        now.second()
+    );
+
+    match suffix {
+        Some(s) if !s.is_empty() => format!("{}-{}", base, s),
+        _ => base,
+    }
 }
 
 pub fn find_tasks_dir(start_path: &Path) -> Option<String> {
