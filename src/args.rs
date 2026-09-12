@@ -1,10 +1,10 @@
-use std::env;
 use std::collections::VecDeque;
+use std::env;
 
 #[derive(Debug)]
 pub struct Arg {
     pub Key: String,
-    pub Value: Option<String>
+    pub Value: Option<String>,
 }
 
 pub fn parse_args(args: env::Args) -> VecDeque<Arg> {
@@ -19,10 +19,16 @@ pub fn parse_args(args: env::Args) -> VecDeque<Arg> {
         }
 
         if let Some(ref k) = key {
-            parsed.push_back(Arg{Key: k.to_string(), Value: Some(elem)});
+            parsed.push_back(Arg {
+                Key: k.to_string(),
+                Value: Some(elem),
+            });
             key = None;
         } else {
-            parsed.push_back(Arg{Key: elem, Value: None});
+            parsed.push_back(Arg {
+                Key: elem,
+                Value: None,
+            });
         }
     }
 
@@ -32,7 +38,9 @@ pub fn parse_args(args: env::Args) -> VecDeque<Arg> {
 
 pub fn has_key(args: &VecDeque<Arg>, key: String) -> bool {
     for elem in args {
-        if elem.Key == key { return true; }
+        if elem.Key == key {
+            return true;
+        }
     }
 
     return false;
@@ -40,7 +48,9 @@ pub fn has_key(args: &VecDeque<Arg>, key: String) -> bool {
 
 pub fn get_value(args: &VecDeque<Arg>, key: &str) -> Option<String> {
     for elem in args {
-        if elem.Key == key { return elem.Value.clone(); }
+        if elem.Key == key {
+            return elem.Value.clone();
+        }
     }
 
     None

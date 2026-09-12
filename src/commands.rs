@@ -1,9 +1,9 @@
 use std::collections::VecDeque;
-use std::vec::Vec;
-use std::fs;
 use std::env;
+use std::fs;
 use std::fs::File;
 use std::io::Write;
+use std::vec::Vec;
 
 use crate::*;
 
@@ -17,7 +17,7 @@ pub fn usage() {
 pub fn init() {
     match fs::create_dir("./tasks") {
         Ok(_) => println!("Successfully created tasks directory"),
-        Err(e) => eprintln!("ERROR: Could not create tasks directory:\n\t{}", e)
+        Err(e) => eprintln!("ERROR: Could not create tasks directory:\n\t{}", e),
     }
 }
 
@@ -51,27 +51,38 @@ pub fn new_cmd(args: &mut VecDeque<Arg>) {
         }
     };
 
-    let title = args.pop_front().unwrap_or(Arg{Key: "NEW TASK".to_string(), Value: None}).Key;
+    let title = args
+        .pop_front()
+        .unwrap_or(Arg {
+            Key: "NEW TASK".to_string(),
+            Value: None,
+        })
+        .Key;
     let priority = get_value(args, "-p").unwrap_or("100".to_string());
     let mut tags = Vec::new();
     for elem in args {
-        if elem.Key == "-t" { 
+        if elem.Key == "-t" {
             tags.push(elem.Value.clone().unwrap().clone());
         }
     }
 
-    let body = format!("\
+    let body = format!(
+        "\
 # {}
 
 - STATUS: OPEN
 - PRIORITY: {}
 - TAGS: {}
 
-", title, priority, tags.join(","));
+",
+        title,
+        priority,
+        tags.join(",")
+    );
 
     match f.write_all(body.as_bytes()) {
         Ok(()) => (),
-        Err(e) => eprintln!("Error writing to file: {}", e)
+        Err(e) => eprintln!("Error writing to file: {}", e),
     }
 
     println!(

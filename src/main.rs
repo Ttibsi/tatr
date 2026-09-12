@@ -16,6 +16,6 @@ fn main() {
         "help" => usage(),
         "version" => version(),
         "new" => new_cmd(&mut args),
-        _ => usage()
+        _ => usage(),
     };
 }
