@@ -93,3 +93,13 @@ pub fn new_cmd(args: &mut VecDeque<Arg>) {
         title
     );
 }
+
+pub fn ls_cmd(args: &mut VecDeque<Arg>) {
+    let mut debug = false;
+    if has_key(args, "-debug".to_string()) {
+        pop_arg(args, "-debug");
+        debug = true;
+    }
+
+    parse_tql(as_string(args), debug);
+}

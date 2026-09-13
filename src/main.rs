@@ -15,6 +15,7 @@ fn main() {
         "init" => init(),
         "help" => usage(),
         "version" => version(),
+        "ls" => ls_cmd(&mut args),
         "new" => new_cmd(&mut args),
         _ => usage(),
     };

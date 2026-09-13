@@ -53,5 +53,20 @@ pub fn get_value(args: &VecDeque<Arg>, key: &str) -> Option<String> {
         }
     }
 
-    None
+    return None;
+}
+
+pub fn pop_arg(args: &mut VecDeque<Arg>, key: &str) {
+    args.retain(|x| x.Key != key);
+}
+
+pub fn as_string(args: &VecDeque<Arg>) -> String {
+    let mut arg_str = String::new();
+
+    for elem in args {
+        arg_str.push_str(&elem.Key);
+        arg_str.push(' ');
+    }
+
+    return arg_str;
 }
