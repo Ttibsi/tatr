@@ -1,9 +1,13 @@
-#[derive(Debug)]
+use std::collections::VecDeque;
+
+#[derive(Debug, PartialEq)]
 enum Token {
     Tag(String),
     Number(i32),
     Obracket,
     Cbracket,
+    Or,
+    And,
     Not,
     Any,
     Priority,
@@ -15,8 +19,8 @@ enum Token {
     Gt
 }
 
-fn tokenize(args: String, debug: bool)  -> Vec<Token> {
-    let mut tokens = Vec::new();
+fn tokenize(args: String, debug: bool)  -> VecDeque<Token> {
+    let mut tokens = VecDeque::new();
     if debug {
         println!("Tokens:");
     }
@@ -25,11 +29,11 @@ fn tokenize(args: String, debug: bool)  -> Vec<Token> {
     for c in args.chars() {
         if c.is_whitespace() {
             if buf.parse::<i32>().is_ok() {
-                tokens.push(Token::Number(buf.parse::<i32>().unwrap()));
+                tokens.push_back(Token::Number(buf.parse::<i32>().unwrap()));
                 buf.clear();
                 continue;
             } else if buf.chars().nth(0).unwrap() == ':' {
-                tokens.push(Token::Tag(buf.strip_prefix(":").unwrap().to_string()));
+                tokens.push_back(Token::Tag(buf.strip_prefix(":").unwrap().to_string()));
                 buf.clear();
                 continue;
             }
@@ -38,37 +42,43 @@ fn tokenize(args: String, debug: bool)  -> Vec<Token> {
         buf.push(c);
 
         if buf == "not" {
-            tokens.push(Token::Not);
+            tokens.push_back(Token::Not);
             buf.clear();
         } else if buf == "any" {
-            tokens.push(Token::Any);
+            tokens.push_back(Token::Any);
+            buf.clear();
+        } else if buf == "or" {
+            tokens.push_back(Token::Or);
+            buf.clear();
+        } else if buf == "and" {
+            tokens.push_back(Token::And);
             buf.clear();
         } else if buf == "priority" {
-            tokens.push(Token::Priority);
+            tokens.push_back(Token::Priority);
             buf.clear();
         } else if buf == "eq" {
-            tokens.push(Token::Eq);
+            tokens.push_back(Token::Eq);
             buf.clear();
         } else if buf == "ne" {
-            tokens.push(Token::Ne);
+            tokens.push_back(Token::Ne);
             buf.clear();
         } else if buf == "lt" {
-            tokens.push(Token::Lt);
+            tokens.push_back(Token::Lt);
             buf.clear();
         } else if buf == "le" {
-            tokens.push(Token::Le);
+            tokens.push_back(Token::Le);
             buf.clear();
         } else if buf == "gt" {
-            tokens.push(Token::Gt);
+            tokens.push_back(Token::Gt);
             buf.clear();
         } else if buf == "ge" {
-            tokens.push(Token::Ge);
+            tokens.push_back(Token::Ge);
             buf.clear();
         } else if buf == "[" {
-            tokens.push(Token::Obracket);
+            tokens.push_back(Token::Obracket);
             buf.clear();
         } else if buf == "]" {
-            tokens.push(Token::Cbracket);
+            tokens.push_back(Token::Cbracket);
             buf.clear();
         }
     }
@@ -82,6 +92,103 @@ fn tokenize(args: String, debug: bool)  -> Vec<Token> {
     return tokens;
 }
 
+enum Opcode {
+    Or,
+    And,
+    Lt,
+    Le,
+    Gt,
+    Ge,
+    Eq,
+    Ne,
+}
+
+fn compile_primary(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
+    return false;
+}
+
+fn compile_compare(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
+    if !compile_primary(tokens, query) { return false; }
+    loop {
+        match tokens.front().unwrap() {
+            Token::Lt => {
+                if !compile_primary(tokens, query) { return false; }
+                tokens.pop_front();
+                query.push(Opcode::Lt);
+            },
+            Token::Le => {
+                if !compile_primary(tokens, query) { return false; }
+                tokens.pop_front();
+                query.push(Opcode::Le);
+            },
+            Token::Gt => {
+                if !compile_primary(tokens, query) { return false; }
+                tokens.pop_front();
+                query.push(Opcode::Gt);
+            },
+            Token::Ge => {
+                if !compile_primary(tokens, query) { return false; }
+                tokens.pop_front();
+                query.push(Opcode::Ge);
+            },
+            Token::Eq => {
+                if !compile_primary(tokens, query) { return false; }
+                tokens.pop_front();
+                query.push(Opcode::Eq);
+            },
+            Token::Ne => {
+                if !compile_primary(tokens, query) { return false; }
+                tokens.pop_front();
+                query.push(Opcode::Ne);
+            },
+            default => {},
+        }
+
+        if !compile_primary(tokens, query) { return false; }
+        query.push(Opcode::And);
+    }
+
+    return true;
+}
+
+fn compile_and(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
+    if !compile_compare(tokens, query) { return false; }
+    loop {
+        if *tokens.front().unwrap() == Token::And {
+            tokens.pop_front();
+            return true;
+        }
+
+        if !compile_compare(tokens, query) { return false; }
+        query.push(Opcode::And);
+    }
+
+    return true;
+}
+
+fn compile_or(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
+    if !compile_and(tokens, query) { return false; }
+    loop {
+        if *tokens.front().unwrap() == Token::Or {
+            tokens.pop_front();
+            return true;
+        }
+
+        if !compile_and(tokens, query) { return false; }
+        query.push(Opcode::Or);
+    }
+
+    return true;
+}
+
+fn compile(mut tokens: VecDeque<Token>) -> Option<Vec<Opcode>> {
+    let mut stack: Vec<Opcode> = Vec::new();
+    if compile_or(&mut tokens, &mut stack) { return Some(stack); }
+    return None;
+}
+
 pub fn parse_tql(args: String, debug: bool) {
-    let tokens: Vec<Token> = tokenize(args, debug);
+    let mut tokens: VecDeque<Token> = tokenize(args, debug);
+    let stack = compile(tokens);
+
 }
