@@ -95,22 +95,54 @@ fn tokenize(args: String, debug: bool)  -> VecDeque<Token> {
 enum Opcode {
     Or,
     And,
+    Any,
     Lt,
     Le,
     Gt,
     Ge,
     Eq,
     Ne,
+    Tag(String),
+    Priority,
 }
 
 fn compile_primary(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
+    let mut tok = tokens.pop_front();
+    if tok == None {
+        tok = Some(Token::Any);
+    }
+
+    match tok.unwrap() {
+        Token::Tag(name) => {
+            query.push(Opcode::Tag(name));
+            return true;
+        }
+        Token::Obracket => {
+            if compile_expr(tokens, query) { return false; }
+            return true;
+        },
+        Token::Not => {
+            query.push(Opcode::Ne);
+            return true;
+        },
+        Token::Any => {
+            query.push(Opcode::Any);
+            return true;
+        },
+        Token::Priority => {
+            query.push(Opcode::Priority);
+            return true;
+        }
+        _ => { unreachable!("Unknown token"); }
+    }
+
     return false;
 }
 
 fn compile_compare(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
     if !compile_primary(tokens, query) { return false; }
     loop {
-        match tokens.front().unwrap() {
+        match tokens.front().unwrap_or(&Token::Any) {
             Token::Lt => {
                 if !compile_primary(tokens, query) { return false; }
                 tokens.pop_front();
@@ -181,9 +213,14 @@ fn compile_or(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
     return true;
 }
 
+fn compile_expr(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
+    if !compile_or(tokens, query) { return false; }
+    return true;
+}
+
 fn compile(mut tokens: VecDeque<Token>) -> Option<Vec<Opcode>> {
     let mut stack: Vec<Opcode> = Vec::new();
-    if compile_or(&mut tokens, &mut stack) { return Some(stack); }
+    if compile_expr(&mut tokens, &mut stack) { return Some(stack); }
     return None;
 }
 

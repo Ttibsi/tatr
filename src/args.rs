@@ -32,7 +32,6 @@ pub fn parse_args(args: env::Args) -> VecDeque<Arg> {
         }
     }
 
-    println!("[INFO] Found: {:?}", parsed);
     return parsed;
 }
 
