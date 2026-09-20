@@ -32,6 +32,14 @@ pub fn parse_args(args: env::Args) -> VecDeque<Arg> {
         }
     }
 
+    // If we get to the end and there's still a flag, add it too
+    if let Some(ref k) = key {
+        parsed.push_back(Arg {
+            Key: k.to_string(),
+            Value: None
+        });
+    }
+
     return parsed;
 }
 

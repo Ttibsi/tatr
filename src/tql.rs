@@ -21,9 +21,6 @@ enum Token {
 
 fn tokenize(args: String, debug: bool)  -> VecDeque<Token> {
     let mut tokens = VecDeque::new();
-    if debug {
-        println!("Tokens:");
-    }
 
     let mut buf = String::new();
     for c in args.chars() {
@@ -83,7 +80,12 @@ fn tokenize(args: String, debug: bool)  -> VecDeque<Token> {
         }
     }
 
+    if tokens.is_empty() {
+        tokens.push_back(Token::Any);
+    }
+
     if debug {
+        println!("Tokens: {:?}", tokens);
         for elem in &tokens {
             println!("\t{:?}", elem);
         }
@@ -107,10 +109,8 @@ enum Opcode {
 }
 
 fn compile_primary(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
+    if tokens.is_empty() { return false; }
     let mut tok = tokens.pop_front();
-    if tok == None {
-        tok = Some(Token::Any);
-    }
 
     match tok.unwrap() {
         Token::Tag(name) => {
@@ -226,6 +226,9 @@ fn compile(mut tokens: VecDeque<Token>) -> Option<Vec<Opcode>> {
 
 pub fn parse_tql(args: String, debug: bool) {
     let mut tokens: VecDeque<Token> = tokenize(args, debug);
-    let stack = compile(tokens);
+    if let stack = compile(tokens) {
+    } else {
+        println!("Stack not found");
+    }
 
 }
