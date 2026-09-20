@@ -101,5 +101,16 @@ pub fn ls_cmd(args: &mut VecDeque<Arg>) {
         debug = true;
     }
 
-    parse_tql(as_string(args), debug);
+   if let Some(stack) = parse_tql(as_string(args), debug) {
+       println!("Stack size: {}", stack.len());
+       let tasks: Vec<Task> = load_tasks();
+       let matched_tasks: Vec<Option<Task>> = tasks.iter().map(
+           |t| task_matches_query(t.clone(), stack.clone(), debug)
+        ).collect();
+       if matched_tasks.is_empty() {
+           println!("No tasks were found");
+       }
+
+       print_tasks(matched_tasks);
+   } 
 }

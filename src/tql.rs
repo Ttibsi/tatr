@@ -1,4 +1,5 @@
 use std::collections::VecDeque;
+use crate::Task;
 
 #[derive(Debug, PartialEq)]
 enum Token {
@@ -94,7 +95,8 @@ fn tokenize(args: String, debug: bool)  -> VecDeque<Token> {
     return tokens;
 }
 
-enum Opcode {
+#[derive(Clone)]
+pub enum Opcode {
     Or,
     And,
     Any,
@@ -224,11 +226,11 @@ fn compile(mut tokens: VecDeque<Token>) -> Option<Vec<Opcode>> {
     return None;
 }
 
-pub fn parse_tql(args: String, debug: bool) {
+pub fn parse_tql(args: String, debug: bool) -> Option<Vec<Opcode>>{
     let mut tokens: VecDeque<Token> = tokenize(args, debug);
-    if let stack = compile(tokens) {
-    } else {
-        println!("Stack not found");
-    }
+    return compile(tokens);
+}
 
+pub fn task_matches_query(task: Task, stack: Vec<Opcode>, debug: bool) -> Option<Task> {
+    todo!("Todo: task_matches_query");
 }
