@@ -144,41 +144,44 @@ fn compile_primary(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> boo
 fn compile_compare(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
     if !compile_primary(tokens, query) { return false; }
     loop {
-        match tokens.front().unwrap_or(&Token::Any) {
-            Token::Lt => {
-                if !compile_primary(tokens, query) { return false; }
-                tokens.pop_front();
-                query.push(Opcode::Lt);
-            },
-            Token::Le => {
-                if !compile_primary(tokens, query) { return false; }
-                tokens.pop_front();
-                query.push(Opcode::Le);
-            },
-            Token::Gt => {
-                if !compile_primary(tokens, query) { return false; }
-                tokens.pop_front();
-                query.push(Opcode::Gt);
-            },
-            Token::Ge => {
-                if !compile_primary(tokens, query) { return false; }
-                tokens.pop_front();
-                query.push(Opcode::Ge);
-            },
-            Token::Eq => {
-                if !compile_primary(tokens, query) { return false; }
-                tokens.pop_front();
-                query.push(Opcode::Eq);
-            },
-            Token::Ne => {
-                if !compile_primary(tokens, query) { return false; }
-                tokens.pop_front();
-                query.push(Opcode::Ne);
-            },
-            default => {},
+        if tokens.is_empty() { break; }
+        if let Some(tok) = tokens.front() {
+            match (tok) {
+                Token::Lt => {
+                    if !compile_primary(tokens, query) { return false; }
+                    tokens.pop_front();
+                    query.push(Opcode::Lt);
+                },
+                Token::Le => {
+                    if !compile_primary(tokens, query) { return false; }
+                    tokens.pop_front();
+                    query.push(Opcode::Le);
+                },
+                Token::Gt => {
+                    if !compile_primary(tokens, query) { return false; }
+                    tokens.pop_front();
+                    query.push(Opcode::Gt);
+                },
+                Token::Ge => {
+                    if !compile_primary(tokens, query) { return false; }
+                    tokens.pop_front();
+                    query.push(Opcode::Ge);
+                },
+                Token::Eq => {
+                    if !compile_primary(tokens, query) { return false; }
+                    tokens.pop_front();
+                    query.push(Opcode::Eq);
+                },
+                Token::Ne => {
+                    if !compile_primary(tokens, query) { return false; }
+                    tokens.pop_front();
+                    query.push(Opcode::Ne);
+                },
+                default => {},
+            }
+            if !compile_primary(tokens, query) { return false; }
         }
 
-        if !compile_primary(tokens, query) { return false; }
         query.push(Opcode::And);
     }
 
@@ -188,6 +191,8 @@ fn compile_compare(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> boo
 fn compile_and(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
     if !compile_compare(tokens, query) { return false; }
     loop {
+        if tokens.is_empty() { break; }
+
         if *tokens.front().unwrap() == Token::And {
             tokens.pop_front();
             return true;
@@ -203,6 +208,7 @@ fn compile_and(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
 fn compile_or(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
     if !compile_and(tokens, query) { return false; }
     loop {
+        if tokens.is_empty() { break; }
         if *tokens.front().unwrap() == Token::Or {
             tokens.pop_front();
             return true;
