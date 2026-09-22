@@ -1,5 +1,7 @@
 use std::path::Path;
 use time::OffsetDateTime;
+use std::fs::File;
+use std::io::{self, BufRead};
 
 pub fn generate_huid(suffix: Option<&str>) -> String {
     let now = OffsetDateTime::now_utc();
@@ -46,4 +48,16 @@ pub fn find_tasks_dir(start_path: &Path) -> Option<String> {
     None
 }
 
+// Copied from https://doc.rust-lang.org/stable/rust-by-example/std_misc/file/read_lines.html
+pub fn read_lines<P>(filename: P) -> Option<Vec<String>> where P: AsRef<Path> {
+    if let Ok(file) = File::open(filename) {
+        let mut lines = Vec::new();
+        for line in io::BufReader::new(file).lines().map_while(Result::ok) {
+            lines.push(line);
+        }
 
+        return Some(lines);
+    } else {
+        return None;
+    }
+}
