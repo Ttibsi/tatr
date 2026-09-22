@@ -112,7 +112,7 @@ pub enum Opcode {
 
 fn compile_primary(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
     if tokens.is_empty() { return false; }
-    let mut tok = tokens.pop_front();
+    let tok = tokens.pop_front();
 
     match tok.unwrap() {
         Token::Tag(name) => {
@@ -135,10 +135,11 @@ fn compile_primary(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> boo
             query.push(Opcode::Priority);
             return true;
         }
-        _ => { unreachable!("Unknown token"); }
+        _ => { 
+            unreachable!("Unknown token"); 
+            return false;
+        }
     }
-
-    return false;
 }
 
 fn compile_compare(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> bool {
@@ -146,7 +147,7 @@ fn compile_compare(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> boo
     loop {
         if tokens.is_empty() { break; }
         if let Some(tok) = tokens.front() {
-            match (tok) {
+            match tok {
                 Token::Lt => {
                     if !compile_primary(tokens, query) { return false; }
                     tokens.pop_front();
@@ -177,7 +178,7 @@ fn compile_compare(tokens: &mut VecDeque<Token>, query: &mut Vec<Opcode>) -> boo
                     tokens.pop_front();
                     query.push(Opcode::Ne);
                 },
-                default => {},
+                _ => {},
             }
             if !compile_primary(tokens, query) { return false; }
         }
