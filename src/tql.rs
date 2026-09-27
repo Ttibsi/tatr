@@ -86,10 +86,11 @@ fn tokenize(args: String, debug: bool)  -> VecDeque<Token> {
     }
 
     if debug {
-        println!("Tokens: {:?}", tokens);
+        println!("Tokens:");
         for elem in &tokens {
             println!("\t{:?}", elem);
         }
+        println!("");
     }
 
     return tokens;
