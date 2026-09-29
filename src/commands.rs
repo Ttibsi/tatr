@@ -103,7 +103,6 @@ pub fn ls_cmd(args: &mut VecDeque<Arg>) {
 
    if let Some(stack) = parse_tql(as_string(args), debug) {
        let tasks: Vec<Task> = load_tasks();
-       println!("{} tasks found", tasks.len());
        let matched_tasks: Vec<Option<Task>> = tasks.iter().map(
            |t| task_matches_query(t.clone(), stack.clone(), debug)
         ).collect();

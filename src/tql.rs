@@ -96,7 +96,7 @@ fn tokenize(args: String, debug: bool)  -> VecDeque<Token> {
     return tokens;
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Opcode {
     Or,
     And,
@@ -240,5 +240,7 @@ pub fn parse_tql(args: String, debug: bool) -> Option<Vec<Opcode>>{
 }
 
 pub fn task_matches_query(task: Task, stack: Vec<Opcode>, debug: bool) -> Option<Task> {
+    if stack[0] == Opcode::Any { return Some(task); }
+    
     todo!("Todo: task_matches_query");
 }

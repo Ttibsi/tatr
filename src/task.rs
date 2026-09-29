@@ -68,7 +68,6 @@ pub fn load_tasks() -> Vec<Task> {
 
         let contents = read_lines(task_file);
         if let Some(task) = Task::from_file(contents, folder) {
-            task.display();
             tasks.push(task);
         }
     }
