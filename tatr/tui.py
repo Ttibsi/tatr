@@ -76,6 +76,7 @@ def draw_file_display(stdscr: curses.window, task_dir: str):
 def c_main(stdscr: curses.window):
     stdscr.clear()
     curses.start_color()
+    curses.curs_set(False)
 
     tasks: list[str] = get_tasks()
 
