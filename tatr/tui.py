@@ -1,14 +1,12 @@
-import time
 import curses
 import os
 
 from tatr.query import get_tasks
 
-def draw_menu(stdscr: curses.window, tasks: list[str], selected: int):
-    inner_height = curses.LINES - 2
+def draw_menu(stdscr: curses.window, tasks: list[str], selected: int, inner_height: int):
     menu_width = len("| 20261005-180349 |")
     menu = curses.newwin(curses.LINES, menu_width, 0, 0)
-    
+
     menu_top = "\u250C" + ("\u2500" * (menu_width - 1))
     menu_btm = "\u2514" + ("\u2500" * (menu_width - 1))
 
@@ -34,19 +32,15 @@ def draw_menu(stdscr: curses.window, tasks: list[str], selected: int):
             menu.addstr("\u2502" + " " * (menu_width - 2) + "\u2502")
 
     menu.addstr(menu_btm)
+    menu.refresh()
 
-    menu.refresh() 
 
-
-def draw_file_display(stdscr: curses.window, task_dir: str):
+def draw_file_display(stdscr: curses.window, task_dir: str, inner_height: int):
     window_width = curses.COLS - len("| 20261005-180349 |") - 1
-    inner_height = curses.LINES - 2
     win = curses.newwin(curses.LINES, window_width, 0, curses.COLS - window_width - 1)
 
-    # origin = (0, curses.COLS - window_width)
     win_top = ("\u2500" * (window_width - 1)) + "\u2510"
     win_btm = ("\u2500" * (window_width - 1)) + "\u2518"
-    # win.move(*origin)
     win.move(0, 0)
 
     with open(f"{task_dir}/TASK.md") as f:
@@ -73,21 +67,41 @@ def draw_file_display(stdscr: curses.window, task_dir: str):
 
 def c_main(stdscr: curses.window):
     stdscr.clear()
+    stdscr.nodelay(True)
     curses.start_color()
     curses.curs_set(False)
+    inner_height = curses.LINES - 2
 
     tasks: list[str] = get_tasks()
     selected: int = 0
+    visible_offset = 0
+    viewable_tasks = tasks[:inner_height]
 
     while True:
-        draw_menu(stdscr, tasks, selected)
-        draw_file_display(stdscr, tasks[selected])
+        draw_menu(stdscr, viewable_tasks, selected, inner_height)
+        draw_file_display(stdscr, tasks[selected], inner_height)
 
-        key = stdscr.getkey()
+        curses.doupdate()
+
+        try:
+            key = stdscr.getkey()
+        except curses.error:
+            continue
+
         if key == "j":
             if selected < len(tasks):
                 selected += 1
+
+                if selected > inner_height:
+                    visible_offset += 1
+                    viewable_tasks = tasks[visible_offset: visible_offset + inner_height]
         elif key == "k":
             if selected > 0:
                 selected -= 1
+
+                if selected < visible_offset:
+                    visible_offset -= 1
+                    viewable_tasks = tasks[visible_offset: visible_offset + inner_height]
+        elif key == "q":
+            break
 
