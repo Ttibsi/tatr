@@ -108,3 +108,7 @@ def summary_cmd(args: argparse.Namespace) -> dict[str, int | dict[str, int]]:
 
     return status
 
+
+def tui_cmd(args: argparse.Namespace):
+    curses.wrapper(c_main)
+
