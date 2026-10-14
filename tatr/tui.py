@@ -4,7 +4,7 @@ import os
 
 from tatr.query import get_tasks
 
-def draw_menu(stdscr: curses.window, tasks: list[str]) -> int:
+def draw_menu(stdscr: curses.window, tasks: list[str], selected: int):
     inner_height = curses.LINES - 2
     menu_width = len("| 20261005-180349 |")
     menu = curses.newwin(curses.LINES, menu_width, 0, 0)
@@ -12,7 +12,6 @@ def draw_menu(stdscr: curses.window, tasks: list[str]) -> int:
     menu_top = "\u250C" + ("\u2500" * (menu_width - 1))
     menu_btm = "\u2514" + ("\u2500" * (menu_width - 1))
 
-    selected_row = 0
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLUE)
 
     menu.move(0, 0)
@@ -23,7 +22,7 @@ def draw_menu(stdscr: curses.window, tasks: list[str]) -> int:
 
         menu.addstr(idx, 0, "\u2502 ")
         disp = task.split(os.sep)[-1]
-        if idx - 1 != selected_row:
+        if idx - 1 != selected:
             menu.addstr(idx, 2, disp)
         else:
             menu.addstr(idx, 2, disp, curses.color_pair(1))
@@ -37,7 +36,6 @@ def draw_menu(stdscr: curses.window, tasks: list[str]) -> int:
     menu.addstr(menu_btm)
 
     menu.refresh() 
-    return selected_row
 
 
 def draw_file_display(stdscr: curses.window, task_dir: str):
@@ -79,9 +77,17 @@ def c_main(stdscr: curses.window):
     curses.curs_set(False)
 
     tasks: list[str] = get_tasks()
+    selected: int = 0
 
     while True:
-        selected:int = draw_menu(stdscr, tasks)
+        draw_menu(stdscr, tasks, selected)
         draw_file_display(stdscr, tasks[selected])
-        stdscr.getch()
+
+        key = stdscr.getkey()
+        if key == "j":
+            if selected < len(tasks):
+                selected += 1
+        elif key == "k":
+            if selected > 0:
+                selected -= 1
 
