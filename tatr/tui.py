@@ -1,5 +1,6 @@
 import curses
 import os
+import subprocess
 
 from tatr.query import get_tasks
 
@@ -68,6 +69,7 @@ def draw_file_display(stdscr: curses.window, task_dir: str, inner_height: int):
 def c_main(stdscr: curses.window):
     stdscr.clear()
     stdscr.nodelay(True)
+    stdscr.keypad(True)
     curses.start_color()
     curses.curs_set(False)
     inner_height = curses.LINES - 2
@@ -104,4 +106,11 @@ def c_main(stdscr: curses.window):
                     viewable_tasks = tasks[visible_offset: visible_offset + inner_height]
         elif key == "q":
             break
+        elif key == "\n":
+            curses.endwin()
+            editor = os.environ.get("EDITOR", "vi")
+            file = f"{tasks[selected]}{os.sep}TASK.md"
+            # This needs to repeat `editor` twice for old unix reasons
+            os.execlp(editor, editor, file)
+            return
 
