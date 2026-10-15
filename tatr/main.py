@@ -28,6 +28,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     summary_parser = subparsers.add_parser("summary", help="Display task summary")
     summary_parser.set_defaults(func=summary_cmd)
 
+    tui_parser = subparsers.add_parser("tui", help="Enable TUI view")
+    tui_parser.set_defaults(func=tui_cmd)
+
     args: argparse.Namespace = parser.parse_args(argv)
     args.func(args)
 

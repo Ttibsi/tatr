@@ -1,0 +1,7 @@
+.pytest_cache/
+build/
+tatr.egg-info/
+venv
+tests/__pycache__
+iris.log
+
