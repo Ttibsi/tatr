@@ -1,17 +1,27 @@
 import argparse
 import curses
 import os
-from tatr.utils import generate_huid, get_tasks_dir
-from tatr.query import get_title, get_priority, get_tags, get_status, has_tags, check_priority, has_no_tag, get_tasks
 from collections import Counter
-from tatr.tui import c_main
 
-def init_tasks_dir(args: argparse.Namespace):
+from tatr.query import check_priority
+from tatr.query import get_priority
+from tatr.query import get_status
+from tatr.query import get_tags
+from tatr.query import get_tasks
+from tatr.query import get_title
+from tatr.query import has_no_tag
+from tatr.query import has_tags
+from tatr.tui import c_main
+from tatr.utils import generate_huid
+from tatr.utils import get_tasks_dir
+
+
+def init_tasks_dir(args: argparse.Namespace) -> None:
     if not os.path.exists("tasks"):
         os.mkdir("tasks")
 
 
-def new_cmd(args: argparse.Namespace):
+def new_cmd(args: argparse.Namespace) -> None:
     huid: str = generate_huid()
     tasks_path: str | None = get_tasks_dir()
     if tasks_path is None:
@@ -39,76 +49,82 @@ def ls_cmd(args: argparse.Namespace) -> list[str]:
     if not tasks:
         return tasks
 
+    temp_tasks: list[str] = []
     if args.priority:
-        temp_tasks: list[str] = []
 
         for task in tasks:
             if check_priority(task, args.priority):
                 temp_tasks.append(task)
 
         tasks = temp_tasks
+        temp_tasks = []
 
     if args.tags:
-        temp_tasks: list[str] = []
-        tags = [tag.strip() for tag in args.tags.split(",")]
+        tags: list[str] = [tag.strip() for tag in args.tags.split(",")]
         for task in tasks:
-            if has_tags(task, set(args.tags.split(","))):
+            if has_tags(task, set(tags)):
                 temp_tasks.append(task)
 
         tasks = temp_tasks
+        temp_tasks = []
+
     elif args.untagged:
-        temp_tasks: list[str] = []
         for task in tasks:
             if has_no_tag(task):
                 temp_tasks.append(task)
 
         tasks = temp_tasks
-
+        temp_tasks = []
 
     for task in tasks:
         title = get_title(task)
         status = get_status(task)
         prio = f"[PRIORITY: {get_priority(task)}]"
-        tags = get_tags(task)
-        print(f"{task}/TASK.md:1:{status} {prio} {tags}{title}")
+        tag_display = get_tags(task)
+        print(f"{task}/TASK.md:1:{status} {prio} {tag_display}{title}")
 
     return tasks
 
 
-def summary_cmd(args: argparse.Namespace) -> dict[str, int | dict[str, int]]:
+type summary_t = tuple[dict[str, int], dict[str, int]]
+
+
+def summary_cmd(args: argparse.Namespace) -> summary_t:
     tasks = get_tasks()
     if not tasks:
-        return {}
+        return ({}, {})
 
-    status = {
+    status: dict[str, int] = {
         "total": len(tasks),
         "open": 0,
         "untagged": 0,
-        "tags": Counter()
     }
+    tag_status: dict[str, int] = Counter()
 
     for task in tasks:
         if get_status(task) == "OPEN":
             status["open"] += 1
 
-        tags = [t.strip().lstrip().strip("]").lstrip("[") for t in get_tags(task).split(",")]
+        tags = [
+            t.strip().lstrip().strip("]").lstrip("[")
+            for t in get_tags(task).split(",")
+        ]
         if len(tags) == 1 and not tags[0]:
             status["untagged"] += 1
             continue
 
         for tag in tags:
-            status["tags"][tag] += 1
+            tag_status[tag] += 1
 
     print(f"TOTAL:    {status['total']}")
     print(f"OPEN:     {status['open']}")
     print(f"UNTAGGED: {status['untagged']}")
-    print(f"TAGGED:")
-    for key, val in status["tags"].items():
+    print("TAGGED:")
+    for key, val in tag_status.items():
         print(f"      {key} => {val}")
 
-    return status
+    return status, tag_status
 
 
-def tui_cmd(args: argparse.Namespace):
+def tui_cmd(args: argparse.Namespace) -> None:
     curses.wrapper(c_main)
-

@@ -1,10 +1,15 @@
 import curses
 import os
-import subprocess
 
 from tatr.query import get_tasks
 
-def draw_menu(stdscr: curses.window, tasks: list[str], selected: int, inner_height: int):
+
+def draw_menu(
+    stdscr: curses.window,
+    tasks: list[str],
+    selected: int,
+    inner_height: int,
+) -> None:
     menu_width = len("| 20261005-180349 |")
     menu = curses.newwin(curses.LINES, menu_width, 0, 0)
 
@@ -36,9 +41,16 @@ def draw_menu(stdscr: curses.window, tasks: list[str], selected: int, inner_heig
     menu.refresh()
 
 
-def draw_file_display(stdscr: curses.window, task_dir: str, inner_height: int):
+def draw_file_display(
+    stdscr: curses.window,
+    task_dir: str,
+    inner_height: int,
+) -> None:
     window_width = curses.COLS - len("| 20261005-180349 |") - 1
-    win = curses.newwin(curses.LINES, window_width, 0, curses.COLS - window_width - 1)
+    win = curses.newwin(
+        curses.LINES, window_width, 0,
+        curses.COLS - window_width - 1,
+    )
 
     win_top = ("\u2500" * (window_width - 1)) + "\u2510"
     win_btm = ("\u2500" * (window_width - 1)) + "\u2518"
@@ -56,7 +68,7 @@ def draw_file_display(stdscr: curses.window, task_dir: str, inner_height: int):
         if len(visible_line) < (window_width - 2):
             visible_line += (" " * (window_width - 3 - len(visible_line)))
 
-        win.addstr(idx + 1, 2, visible_line + "\u2502\r");
+        win.addstr(idx + 1, 2, visible_line + "\u2502\r")
 
     if len(lines) < inner_height:
         for i in range(len(lines), inner_height - 1):
@@ -66,7 +78,7 @@ def draw_file_display(stdscr: curses.window, task_dir: str, inner_height: int):
     win.refresh()
 
 
-def c_main(stdscr: curses.window):
+def c_main(stdscr: curses.window) -> None:
     stdscr.clear()
     stdscr.nodelay(True)
     stdscr.keypad(True)
@@ -96,14 +108,16 @@ def c_main(stdscr: curses.window):
 
                 if selected > inner_height:
                     visible_offset += 1
-                    viewable_tasks = tasks[visible_offset: visible_offset + inner_height]
+                    end = visible_offset + inner_height
+                    viewable_tasks = tasks[visible_offset: end]
         elif key == "k":
             if selected > 0:
                 selected -= 1
 
                 if selected < visible_offset:
                     visible_offset -= 1
-                    viewable_tasks = tasks[visible_offset: visible_offset + inner_height]
+                    end = visible_offset + inner_height
+                    viewable_tasks = tasks[visible_offset: end]
         elif key == "q":
             break
         elif key == "\n":
@@ -113,4 +127,3 @@ def c_main(stdscr: curses.window):
             # This needs to repeat `editor` twice for old unix reasons
             os.execlp(editor, editor, file)
             return
-

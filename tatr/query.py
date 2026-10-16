@@ -1,5 +1,7 @@
 import os
+
 from tatr.utils import get_tasks_dir
+
 
 def get_tasks() -> list[str]:
     tasks_path: str | None = get_tasks_dir()
@@ -12,22 +14,22 @@ def get_tasks() -> list[str]:
 
 
 def get_title(task: str) -> str:
-    with open(f"{task}/TASK.md", "r") as f:
+    with open(f"{task}/TASK.md") as f:
         return f.readlines()[0].strip()[2:]
 
 
 def get_status(task: str) -> str:
-    with open(f"{task}/TASK.md", "r") as f:
+    with open(f"{task}/TASK.md") as f:
         return f.readlines()[2].split(":")[1].strip()
 
 
 def get_priority(task: str) -> int:
-    with open(f"{task}/TASK.md", "r") as f:
+    with open(f"{task}/TASK.md") as f:
         return int(f.readlines()[3].split(":")[1].strip())
 
 
 def get_tags(task: str) -> str:
-    with open(f"{task}/TASK.md", "r") as f:
+    with open(f"{task}/TASK.md") as f:
         tagstr = f.readlines()[4].split(":")[1]
         if tagstr.isspace() or not tagstr:
             return ""
@@ -67,14 +69,14 @@ def check_priority(task: str, priority_str: str) -> bool:
             valid = task_prio < int(chunks[idx + 1])
             skip = True
 
-    return valid 
+    return valid
 
 
 def has_tags(task: str, tags: set[str]) -> bool:
-    with open(f"{task}/TASK.md", "r") as f:
+    with open(f"{task}/TASK.md") as f:
         tagstr = f.readlines()[4].split(":")[1].strip()
 
-    present_tags = set([tag.strip() for tag in tagstr.split(",")])
+    present_tags = {tag.strip() for tag in tagstr.split(",")}
     if not present_tags:
         return False
 
@@ -82,6 +84,5 @@ def has_tags(task: str, tags: set[str]) -> bool:
 
 
 def has_no_tag(task: str) -> bool:
-    with open(f"{task}/TASK.md", "r") as f:
+    with open(f"{task}/TASK.md") as f:
         return not bool(f.readlines()[4].split(":")[1].strip())
-
