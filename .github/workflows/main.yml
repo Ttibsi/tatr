@@ -4,24 +4,24 @@ on:
     branches: [ main ]
 jobs:
   pre_commit_run:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
       - uses: pre-commit/action@v3.0.0
+
+  # https://docs.github.com/en/actions/tutorials/build-and-test-code/python
   unit_tests:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13", "3.14", "3.15"]
+
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
-          python-version: |
-            ${{
-              '3.11' ||
-              '3.12' ||
-              '3.13' ||
-              '3.14' ||
-              '3.15'
-            }}
+          python-version: ${{ matrix.python-version }}
       - run: pip install tox
       - run: tox
