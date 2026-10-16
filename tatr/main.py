@@ -1,8 +1,12 @@
 import argparse
-import os
 from collections.abc import Sequence
 
-from tatr.cmds import *
+from tatr.cmds import init_tasks_dir
+from tatr.cmds import ls_cmd
+from tatr.cmds import new_cmd
+from tatr.cmds import summary_cmd
+from tatr.cmds import tui_cmd
+
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
@@ -25,7 +29,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     tag_subparser.add_argument("-t", "--tags", type=str)
     tag_subparser.add_argument("-nt", "--untagged", action="store_true")
 
-    summary_parser = subparsers.add_parser("summary", help="Display task summary")
+    summary_parser = subparsers.add_parser(
+        "summary", help="Display task summary",
+    )
     summary_parser.set_defaults(func=summary_cmd)
 
     tui_parser = subparsers.add_parser("tui", help="Enable TUI view")
